@@ -27,7 +27,7 @@ Example:
    `https://mysite.com/?code=SOMELONGSTUFF&state=MORELONGSTUFF`,
 
 
-In short, the login procedure **broke the user flow** represented by the original URL.
+In short, the login procedure **broke the user flow** intended by the original URL.
 
 This article shows how:
 
@@ -45,7 +45,8 @@ Workflow under the hood:
 1. Your page runs some code to check if the user is logged-in. If yes,
    it goes on serving the content. End of the scenario.
 
-2. If not, your page calls Auth0, passing a `redirect_uri`, e.g.    
+2. If not, your page calls the Auth0 login, passing a `redirect_uri`,
+   e.g.    
    `redirect_uri=https://mysite.com/mypage?a=b`
 
 3. then, Auth0 displays a login page to the user,
@@ -55,7 +56,7 @@ Workflow under the hood:
 
 5. As a result, the URL is now like:    
    `https://mysite.com/mypage?a=b&code=SOMESTUFF&state=MORESTUFF`    
-   You can notice an addition in the query string.
+   You can notice an addition in the query string, made by Auth0.
 
 **Issue #1**: The `code` and `state` fields are appended by Auth0 to
 the query of your `redirect_uri`.
