@@ -5,13 +5,29 @@ Tags: Auth0, Vue.js, Javascript
 Date: 2022-10-26
 Summary: A single page applications, after login using an IdM, may find itself left with an undesired query string. Read how to fix this.
 
-# Context
+# 1. Context
 
-You are protecting your Single Page Application (SPA) with an OAuth2
-identity management Service (IdM) like [Auth0](https://auth0.com/).
+You are protecting your Single Page Application (SPA) with an
+**OAuth2** identity management Service (IdM) like
+[Auth0](https://auth0.com/).
 
 After successful login, the IdM return the user to your web page. Now
-your web page has an URL containing an undesired query.
+your web page has an URL **falling back to the few allowed** callback
+URLs, and containing an **undesired query**.
+
+Example:
+
+1. User selects, say, a bookmark going to *article 42*:
+   `https://mysite.com/gallery/view?article=42`
+
+2. Because the user is logged out, the Auth0 login page is presented.
+
+3. After successful login, the user is brought to a place which is
+   obviously not displaying *article 42*:
+   `https://mysite.com/?code=SOMELONGSTUFF&state=MORELONGSTUFF`,
+
+
+In short, the login procedure **broke the user flow** represented by the original URL.
 
 This article shows how:
 
@@ -22,28 +38,24 @@ We are using [Auth0](https://auth0.com/) and
 [Vue.js](https://vuejs.org/), but the same principle can apply
 generally (I think) to OAuth2 and any web framework.
 
-# Issue details
+# 2. Issue details
 
-Consider this workflow:
+Workflow under the hood:
 
 1. Your page runs some code to check if the user is logged-in. If yes,
    it goes on serving the content. End of the scenario.
 
-2. If not, your page calls Auth0, passing a `redirect_uri`,
-   e.g.
-
-         redirect_uri=https://mysite/mypage?a=b
+2. If not, your page calls Auth0, passing a `redirect_uri`, e.g.    
+   `redirect_uri=https://mysite.com/mypage?a=b`
 
 3. then, Auth0 displays a login page to the user,
 
 4. and once the user is validated, the Auth0 page loads the
    `redirect_uri`, returning where your page ordered.
 
-5. As a result, the URL is now like:
-
-          https://mysite/mypage?a=b&code=SOMESTUFF&state=MORESTUFF
-
-     You can notice an addition in the query string.
+5. As a result, the URL is now like:    
+   `https://mysite.com/mypage?a=b&code=SOMESTUFF&state=MORESTUFF`    
+   You can notice an addition in the query string.
 
 **Issue #1**: The `code` and `state` fields are appended by Auth0 to
 the query of your `redirect_uri`.
@@ -52,34 +64,39 @@ the query of your `redirect_uri`.
 in the `redirect_uri`: each possible path has to be registered in
 Auth0.
 
-- In our example, you have to register `https://mysite/mypage`, and if
-  you have a `/mypage2` path, `https://mysite/mypage2` shall be
+- In our example, you have to register `https://mysite.com/mypage`, and if
+  you have a `/mypage2` path, `https://mysite.com/mypage2` shall be
   registered too.
-
 - This is a burden because you may want to call the login from an
   arbitrary page.
 
-# Solution concept
+# 3. Solution concept
 
 The idea involves two parts:
 
-1. In the `redirect_uri`, create a dedicated field (e.g. `_return`) in
-   its query string, to pack the real and complete desired end URL;
-   use no path in the URI, so only one registration is needed in
-   Auth0.
+1. Given the start and end URL being `https://mysite.com/gallery/view?article=42`,
+   your code in mysite.com forms a login request to Auth0, with a `redirect_uri`:
+
+     - using no path (`https://mysite.com/`), so only one registration
+       is needed in Auth0,
+
+     - followed by a query with a dedicated field (e.g. `_return`), containing
+       the real and complete desired end URL (encoded).
+
+       E.g.    
+       `redirect_uri=https://mysite.com/?_return=https%3A%2F%2Fmysite.com%2Fgallery%2Fview%3Farticle%3D42`
 
 2. After the redirection following the login, some code in your pages
    retrieves the value of `_return`, and loads it as end URL.
 
-A similar solution could be envisaged using the browser's local
-storage to store the end URL, but this is a non-reentrant solution: If
-you have two tabs visiting your pages, their workflows could be
-garbled.
+A similar solution could use the browser's local storage to store the
+end URL, but this is a non-reentrant solution: If you have two tabs
+visiting your pages, their workflows could be garbled.
 
 
-# Solution details
+# 4. Solution details
 
-## Part 1
+### Part 1
 
 ```typescript
 // File: main.ts
@@ -116,7 +133,7 @@ app.mount('#app')
 * All other lines are non-exhaustive boilerplate to give you a bit of
   context.
 
-## Part 2
+### Part 2
 
 ```typescript
 // File: router.ts
