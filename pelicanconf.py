@@ -84,10 +84,7 @@ THEME = 'tuxlite_tbs'       # 2
 THEME = 'w3-personal-blog'  # 4
 
 THEME = 'Peli-Kiera'        # 1+
-#THEME = 'pelican-clean-blog'
-#THEME = 'aboutwilson'         # has disqus
-#THEME = 'Flex'              # 1 but MUST adjust /theme/img/profile.png
-#THEME = 'mg'                # 1
+THEME = 'pelican-clean-blog'
 
 
 COLOR_SCHEME_CSS = 'monokai.css'
@@ -102,9 +99,10 @@ MARKDOWN = {
 }
 
 CSS_OVERRIDE = 'custom.css'
+FOOTER_INCLUDE = 'pelican-clean-blog-modified-footer.html'
+THEME_TEMPLATES_OVERRIDES = ['extra-templates']
 
 DISQUS_SITENAME = 'pbauermeister-blog'
-#SITELOGO = '/theme/img/logo.png'
 
 PLUGIN_PATHS = ["pelican-plugins"]
 PLUGINS = [
