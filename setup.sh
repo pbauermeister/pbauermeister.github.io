@@ -9,15 +9,10 @@ pip install pelican markdown ghp-import
 #pelican-quickstart
 
 # Install theme
-git clone git@github.com:gilsondev/pelican-clean-blog.git
-pelican-themes --install pelican-clean-blog --verbose
-rm -rf pelican-clean-blog
-pelican-themes --list
+./install-themes.sh
+./install-plugins.sh
+pip3 install -r pelican-plugins/disqus_static/requirements.txt
 
+pelican-themes --list
 pelican content
 pelican --listen -p 4242
-
-
-pelican content
-ghp-import output
-git push origin gh-pages
