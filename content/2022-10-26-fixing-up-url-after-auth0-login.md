@@ -11,9 +11,9 @@ You are protecting your Single Page Application (SPA) with an
 **OAuth2** identity management Service (IdM) like
 [Auth0](https://auth0.com/).
 
-After successful login, the IdM return the user to your web page. Now
-your web page has an URL **falling back to the few allowed** callback
-URLs, and containing an **undesired query**.
+After a successful login, the IdM returns the user to your web
+page. Now your web page has an URL **falling back to one of a the few
+allowed** callback URLs, and containing an **undesired query**.
 
 Example:
 
