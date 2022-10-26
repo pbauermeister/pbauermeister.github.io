@@ -1,75 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Programmatically speaking</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"/>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"/>
-        <link rel="stylesheet" type="text/css" href="/theme/css/main.css"/>
-</head>
-<body>
-<style>.github-corner:hover .octo-arm {
-    animation: octocat-wave 560ms ease-in-out
-}
-@keyframes octocat-wave {
-    0%, 100% {
-        transform: rotate(0)
-    }
-    20%, 60% {
-        transform: rotate(-25deg)
-    }
-    40%, 80% {
-        transform: rotate(10deg)
-    }
-}
-@media (max-width: 500px) {
-    .github-corner:hover .octo-arm {
-        animation: none
-    }
 
-    .github-corner .octo-arm {
-        animation: octocat-wave 560ms ease-in-out
-    }
-}</style><div id="container">
-    <header>
-        <h1><a href="/">Programmatically speaking</a></h1>
-        <p><em></em></p>
-    </header>
-    <nav>
-        <ul>
-                    <li><a href="/category/programming.html"> Programming </a></li>
-        </ul>
+<head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+        <title>Programmatically speaking</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="/theme/css/code_blocks/monokai.css" rel="stylesheet">
+
+            <!-- CSS specified by the user -->
+            <link href="/custom.css" rel="stylesheet">
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Programmatically speaking">
+</head>
+
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Programmatically speaking</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
     </nav>
-    <main>
-        <section id="home">
-            <ul>
-                    <li>
-                        <h1><a href="/fixing-up-url-after-auth0-login.html" rel="bookmark"
-                               title="Permalink to Fixing up URL after Auth0 login">Fixing up URL after Auth0 login</a></h1>
-                        <aside>
-                            <ul>
-                                <li>
-                                    <time datetime="2022-10-26 00:00:00+02:00">Oct 26, 2022</time>
-                                </li>
-                            </ul>
-                        </aside>
-                        <p>
-                            <p>A single page applications, after login using an IdM, may find itself left with an undesired query string. Read how to fix this.</p>
-                            <a href="/fixing-up-url-after-auth0-login.html"><em>Read more...</em></a>
-                        </p>
-                    </li>
-            </ul>
-        </section>
-    </main>
+
+    <!-- Page Header -->
+    <!-- Set your background image for this header on the line below. -->
+        <header class="intro-header" style="background-image: url('/theme/images/home-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="page-heading">
+                        <h1>Programmatically speaking</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="post-preview">
+            <a href="/fixing-up-url-after-auth0-login.html" rel="bookmark" title="Permalink to Fixing up URL after Auth0 login">
+                <h2 class="post-title">
+                    Fixing up URL after Auth0 login
+                </h2>
+            </a>
+                <p class="article-summary">
+                    A single page applications, after login using an IdM, may find itself left with an undesired query string. Read how to fix this.
+                </p>
+            <p class="post-meta">Posted by
+                    <a href="/author/pascal-bauermeister.html">Pascal Bauermeister</a>
+                 on Wed 26 October 2022
+            </p>
+<p>There are <a data-disqus-identifier="fixing-up-url-after-auth0-login.html" href="/fixing-up-url-after-auth0-login.html#disqus_thread">comments</a>.</p>        </div>
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
     <footer>
-        <h6>
-            Rendered by <a href="http://getpelican.com/">Pelican</a> &nbsp;&bull;&nbsp; Theme by <a
-                href="https://github.com/aleylara/Peli-Kiera">Peli-Kiera</a> &nbsp;&bull;&nbsp; Copyright
-                &copy &nbsp;&#8209;&nbsp; Pascal Bauermeister         </h6>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                    </ul>
+<h2>Comments !</h2>
+
+<div id="disqus_thread"></div>
+<script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+    /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://pbauermeister-blog.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>. <br />        &copy;  Pascal Bauermeister
+</p>                </div>
+            </div>
+        </div>
     </footer>
-</div>
+
+    <!-- jQuery -->
+    <script src="/theme/js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="/theme/js/clean-blog.min.js"></script>
+
+<script type="text/javascript">
+    var disqus_shortname = 'pbauermeister-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
 </body>
+
 </html>
