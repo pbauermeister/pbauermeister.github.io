@@ -188,7 +188,7 @@ Auth0.</p>
 </li>
 <li>
 <p>followed by a query with a dedicated field (e.g. <code>_return</code>), containing
-   the real and complete desired end URL (encoded).</p>
+   the desired end URL (encoded) but only the path and query parts.</p>
 </li>
 </ul>
 <p>E.g.  <br>
@@ -227,7 +227,12 @@ visiting your pages, their workflows could be garbled.</p>
 <span class="normal">21</span>
 <span class="normal">22</span>
 <span class="normal">23</span>
-<span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// File: main.ts</span><span class="w"></span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1">// File: main.ts</span><span class="w"></span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span><span class="w"></span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createAuth0</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@auth0/auth0-vue&#39;</span><span class="p">;</span><span class="w"></span>
 
@@ -237,9 +242,14 @@ visiting your pages, their workflows could be garbled.</p>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createApp</span><span class="p">(</span><span class="nx">App</span><span class="p">)</span><span class="w"></span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">url</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
-<span class="w">    </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">protocol</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">&quot;//&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">host</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
-<span class="w">    </span><span class="s2">&quot;?_return=&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">encodeURIComponent</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">URL</span><span class="p">)</span><span class="w"></span>
+<span class="c1">// will return to current location, relative to site</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">_return</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">pathname</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">search</span><span class="w"></span>
+
+<span class="c1">// ensure the redirect URI contains no path (to need a single Auth0 allowed callback)</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">redirect_urlbase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">protocol</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">&quot;//&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">host</span><span class="w"></span>
+
+<span class="c1">// assemble the redirect URI</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">redirect_uri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">redirect_urlbase</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">&quot;?_return=&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">encodeURIComponent</span><span class="p">(</span><span class="nx">_return</span><span class="p">)</span><span class="w"></span>
 
 <span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">createAuth0</span><span class="p">({</span><span class="w"></span>
 <span class="w">    </span><span class="nx">domain</span><span class="o">:</span><span class="w"> </span><span class="kt">auth0config.issuer</span><span class="p">,</span><span class="w"></span>
@@ -247,7 +257,7 @@ visiting your pages, their workflows could be garbled.</p>
 <span class="w">    </span><span class="nx">audience</span><span class="o">:</span><span class="w"> </span><span class="kt">auth0config.audience</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="nx">cacheLocation</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;localstorage&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="nx">useRefreshTokens</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nx">redirect_uri</span><span class="o">:</span><span class="w"> </span><span class="kt">url</span><span class="w"></span>
+<span class="w">    </span><span class="nx">redirect_uri</span><span class="o">:</span><span class="w"> </span><span class="kt">redirect_uri</span><span class="w"></span>
 <span class="p">}))</span><span class="w"></span>
 <span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">createAppRouter</span><span class="p">(</span><span class="nx">auth0config</span><span class="p">.</span><span class="nx">enabled</span><span class="p">))</span><span class="w"></span>
 <span class="nx">app</span><span class="p">.</span><span class="nx">mount</span><span class="p">(</span><span class="s1">&#39;#app&#39;</span><span class="p">)</span><span class="w"></span>
@@ -255,11 +265,13 @@ visiting your pages, their workflows could be garbled.</p>
 
 <ul>
 <li>
-<p><strong>Line 11-13</strong>: make the redirect URI from the current URL: omit the
+<p><strong>Line 12-18</strong>: make the redirect URI from the current URL: omit the
   path and pack the current URL into the <code>_return</code> query field.</p>
+<p>Note that the URL that we pack into <code>_return</code> does not contain the
+leading <code>https://mysite.com</code> to avoid problems in step 2.</p>
 </li>
 <li>
-<p><strong>Line 21</strong>: set the redirect URI into the request to Auth0.</p>
+<p><strong>Line 26</strong>: set the redirect URI into the request to Auth0.</p>
 </li>
 <li>
 <p>All other lines are non-exhaustive boilerplate to give you a bit of
@@ -357,6 +369,12 @@ visiting your pages, their workflows could be garbled.</p>
 <p><strong>Line 21</strong>: if the query string contains <code>_return</code>, we will simply
     load it as new URL. So we will have our page positioned as before
     the login, including path and query.</p>
+</li>
+<li>
+<p><strong>Line 25</strong>: loads the end URL, in our example
+  <code>/gallery/view?article=42</code>.</p>
+<p>Note that the leading <code>https://mysite.com</code> was omitted, in step 1,
+so as not to reload the Vue application now.</p>
 </li>
 <li>
 <p><strong>Line 26</strong>: this is a safeguard for other cases, when <code>code</code> and

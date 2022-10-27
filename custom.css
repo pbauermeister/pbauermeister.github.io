@@ -2,6 +2,15 @@
     padding: 51px 0;
 }
 
-body, pre {
-    font-size: 16px;
+body {
+    font-size: 14px;
+}
+
+pre {
+    font-size: 12px;
+}
+
+td.code {
+    width: 100%;
+    min-width: 100%;
 }
