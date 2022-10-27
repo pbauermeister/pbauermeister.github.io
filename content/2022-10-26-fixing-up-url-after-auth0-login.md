@@ -34,9 +34,9 @@ This article shows how:
 - to eliminate the undesired query fields,
 - and even better, to restore your original URL.
 
-We are using [Auth0](https://auth0.com/) and
-[Vue.js](https://vuejs.org/), but the same principle can apply
-generally (I think) to OAuth2 and any web framework.
+We are using **[Auth0](https://auth0.com/)** and
+**[Vue.js](https://vuejs.org/) version 3**, but the same principle can
+apply generally (I think) to OAuth2 and any web framework.
 
 # 2. Issue details
 
