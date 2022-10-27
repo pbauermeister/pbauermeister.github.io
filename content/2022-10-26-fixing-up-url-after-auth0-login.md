@@ -82,7 +82,7 @@ The idea involves two parts:
        is needed in Auth0,
 
      - followed by a query with a dedicated field (e.g. `_return`), containing
-       the real and complete desired end URL (encoded).
+       the desired end URL (encoded) but only the path and query parts.
 
        E.g.    
        `redirect_uri=https://mysite.com/?_return=https%3A%2F%2Fmysite.com%2Fgallery%2Fview%3Farticle%3D42`
@@ -110,9 +110,14 @@ import createAppRouter from "./router";  // see snippet below
 
 const app = createApp(App)
 
-const url =
-    window.location.protocol + "//" + window.location.host +
-    "?_return=" + encodeURIComponent(document.URL)
+// will return to current location, relative to site
+const _return = window.location.pathname + window.location.search
+
+// ensure the redirect URI contains no path (to need a single Auth0 allowed callback)
+const redirect_urlbase = window.location.protocol + "//" + window.location.host
+
+// assemble the redirect URI
+const redirect_uri = redirect_urlbase + "?_return=" + encodeURIComponent(_return)
 
 app.use(createAuth0({
     domain: auth0config.issuer,
@@ -120,16 +125,19 @@ app.use(createAuth0({
     audience: auth0config.audience,
     cacheLocation: "localstorage",
     useRefreshTokens: true,
-    redirect_uri: url
+    redirect_uri: redirect_uri
 }))
 app.use(createAppRouter(auth0config.enabled))
 app.mount('#app')
 ```
 
-* **Line 11-13**: make the redirect URI from the current URL: omit the
+* **Line 12-18**: make the redirect URI from the current URL: omit the
   path and pack the current URL into the `_return` query field.
 
-* **Line 21**: set the redirect URI into the request to Auth0.
+    Note that the URL that we pack into `_return` does not contain the
+    leading `https://mysite.com` to avoid problems in step 2.
+
+* **Line 26**: set the redirect URI into the request to Auth0.
 
 * All other lines are non-exhaustive boilerplate to give you a bit of
   context.
@@ -186,6 +194,12 @@ export default function createAppRouter(): Router {
 * **Line 21**: if the query string contains `_return`, we will simply
     load it as new URL. So we will have our page positioned as before
     the login, including path and query.
+
+* **Line 25**: loads the end URL, in our example
+  `/gallery/view?article=42`.
+
+    Note that the leading `https://mysite.com` was omitted, in step 1,
+    so as not to reload the Vue application now.
 
 * **Line 26**: this is a safeguard for other cases, when `code` and
     `state` are present: these two fields (presumably remains from
