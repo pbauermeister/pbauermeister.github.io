@@ -2,7 +2,7 @@ Title: Using a Private Module in Go - Part 2, with Docker
 Author: Pascal Bauermeister
 Category: Programming
 Tags: Golang, shell, Git, DevOps
-Date: 2022-10-30
+Date: 2022-10-31
 Summary: In a Dockerfile, how to use a Go module that is hosted in a private Git repo?
 
 This is the 2nd post of the series "Using a Private Module in Go". In
