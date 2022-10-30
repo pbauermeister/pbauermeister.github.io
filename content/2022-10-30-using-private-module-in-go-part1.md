@@ -1,4 +1,4 @@
-Title: Using a Private Module in Go (Part 1)
+Title: Using a Private Module in Go - Part 1, natively
 Author: Pascal Bauermeister
 Category: Programming
 Tags: Golang, shell, Git, DevOps
@@ -12,6 +12,10 @@ To use a private Go repo (say
 
 - `export GOPRIVATE=github.com/pbauermeister`
 - `git config --global url."git@github.com:".insteadOf "https://github.com/"`
+
+This is the 1st post of the series "Using a Private Module in Go". In
+[part 2](using-a-private-module-in-go-part-2-with-docker.html) we will
+extend the solution to Docker containers.
 
 # Background
 
@@ -157,4 +161,6 @@ $ ./main
 The value is 42
 ```
 
-That's it! Thanks for reading.
+# That's it!
+
+Thanks for reading.
