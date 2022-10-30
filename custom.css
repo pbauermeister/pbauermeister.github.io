@@ -30,3 +30,15 @@ p {
 pre {
     padding: 10px 20px;
 }
+
+p.article-summary {
+    font-size: 16px;
+}
+
+.post-preview>.post-meta {
+    font-size: 12px;
+}
+
+.post-preview>a>.post-title {
+    font-size: 20px;
+}
