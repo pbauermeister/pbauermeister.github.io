@@ -5,6 +5,22 @@ Tags: Golang, shell, Git, DevOps
 Date: 2022-10-31
 Summary: In a Dockerfile, how to use a Go module that is hosted in a private Git repo?
 
+# TL;DR
+
+In the Dockerfile:  
+`RUN --mount=type=secret,id=ID_RSA ...`
+
+In the container:  
+`cat /run/secrets/ID_RSA | base64 -d > ~/.ssh/id_rsa`  
+`ssh-keyscan -H github.com >> ~/.ssh/known_hosts`  
+then, same as in Part 1
+
+Building the container:  
+`ID_RSA=$(cat ~/.ssh/id_rsa | base64 -w0)`  
+`DOCKER_BUILDKIT=1 docker build --secret id=ID_RSA,src=<(set +x; echo $ID_RSA) ...`
+
+# Summary
+
 This is the 2nd post of the series "Using a Private Module in Go". In
 the [part 1][1] we have seen how to do it natively.
 
