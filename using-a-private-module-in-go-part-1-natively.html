@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+        <title>Using a Private Module in Go - Part 1, natively</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="/theme/css/code_blocks/monokai.css" rel="stylesheet">
+
+            <!-- CSS specified by the user -->
+            <link href="/custom.css" rel="stylesheet">
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+        <meta name="description" content="How to use a Go module that is hosted in a private Git repo?">
+
+        <meta name="author" content="Pascal Bauermeister">
+
+        <meta name="tags" content="Golang">
+        <meta name="tags" content="shell">
+        <meta name="tags" content="Git">
+        <meta name="tags" content="DevOps">
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Programmatically speaking">
+
+	<meta property="og:type" content="article">
+            <meta property="article:author" content="/author/pascal-bauermeister.html">
+	<meta property="og:url" content="/using-a-private-module-in-go-part-1-natively.html">
+	<meta property="og:title" content="Using a Private Module in Go - Part 1, natively">
+	<meta property="article:published_time" content="2022-10-30 00:00:00+02:00">
+            <meta property="og:description" content="How to use a Go module that is hosted in a private Git repo?">
+
+            <meta property="og:image" content="/theme/images/post-bg.jpg">
+</head>
+
+<body class="article-using-a-private-module-in-go-part-1-natively">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Programmatically speaking</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('/theme/images/post-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>Using a Private Module in Go - Part 1, natively</h1>
+                        <span class="meta">Posted by
+                                <a href="/author/pascal-bauermeister.html">Pascal Bauermeister</a>
+                             on Sun 30 October 2022
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <h1>TL;DR</h1>
+<p>To use a private Go repo (say
+<code>github.com/pbauermeister/golang-example-private-module</code>), have SSH access to the repo, and, before building, do:</p>
+<ul>
+<li><code>export GOPRIVATE=github.com/pbauermeister</code></li>
+<li><code>git config --global url."git@github.com:".insteadOf "https://github.com/"</code></li>
+</ul>
+<p>This is the 1st post of the series "Using a Private Module in Go". In
+<a href="using-a-private-module-in-go-part-2-with-docker.html">part 2</a> we will
+extend the solution to Docker containers.</p>
+<h1>Background</h1>
+<h2>Context</h2>
+<p>Mostly, Go modules are hosted on public repositories. You import a
+module (e.g. <code>yaml</code>) by having in your Go source file:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="s">&quot;gopkg.in/yaml.v3&quot;</span><span class="w"></span>
+</code></pre></div></td></tr></table></div>
+
+<p>and run:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>go get gopkg.in/yaml.v3
+</code></pre></div></td></tr></table></div>
+
+<p>When, for some reasons, you are to use a module that is hosted on a
+private repo, things become a bit more complex. Read on.</p>
+<h2>Sample private module</h2>
+<p>In this post, we are supposing we want to use a private module hosted
+at <code>github.com/pbauermeister/golang-example-private-module</code> and
+described by its <code>go.mod</code> file:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nx">module</span><span class="w"> </span><span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="nx">pbauermeister</span><span class="o">/</span><span class="nx">golang</span><span class="o">-</span><span class="nx">example</span><span class="o">-</span><span class="nx">private</span><span class="o">-</span><span class="nx">module</span><span class="o">/</span><span class="nx">v2</span><span class="w"></span>
+
+<span class="k">go</span><span class="w"> </span><span class="mf">1.18</span><span class="w"></span>
+</code></pre></div></td></tr></table></div>
+
+<p>and containing this single source file, <code>example.go</code>:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">example_package</span><span class="w"></span>
+
+<span class="kn">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">ExampleFunc</span><span class="p">(</span><span class="nx">value</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;The value is&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div></td></tr></table></div>
+
+<h2>Your code</h2>
+<p>Let us assume your <code>main.go</code> file looks like this:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nx">lib</span><span class="w"> </span><span class="s">&quot;github.com/pbauermeister/golang-example-private-module/v2&quot;</span><span class="w"></span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">lib</span><span class="p">.</span><span class="nx">ExampleFunc</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div></td></tr></table></div>
+
+<p>When running your program, you expect the output to be <code>The value is
+42</code>.</p>
+<h2>The issue</h2>
+<p>The command <code>go get ...</code> will yield an error, like in this session:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code>$ go get github.com/pbauermeister/golang-example-private-module/v2
+go: module github.com/pbauermeister/golang-example-private-module:
+git ls-remote -q origin <span class="k">in</span> /home/pascal/go/pkg/mod/cache/vcs/e542c...: <span class="nb">exit</span> status <span class="m">128</span>:
+    ERROR: Repository not found.
+    fatal: Could not <span class="nb">read</span> from remote repository.
+
+    Please make sure you have the correct access rights
+    and the repository exists.
+</code></pre></div></td></tr></table></div>
+
+<p>As we are sure that the repository exists, it must be an access rights
+issue, which is not a surprise because the repo is private.</p>
+<h1>Solution</h1>
+<p>Assuming the Git URL to be
+<code>github.com/pbauermeister/golang-example-private-module</code>...</p>
+<h2>Step 1 - Check you have SSH access to the repo</h2>
+<ol>
+<li>
+<p>Check that you have your SSH keys pair:</p>
+<ul>
+<li><code>~/.ssh/id_rsa</code></li>
+<li><code>~/.ssh/id_rsa.pub</code></li>
+</ul>
+<p>If not, then create a key pair: <code>ssh-keygen -b 4096 -C "INSERT
+  YOUR E-MAIL ADDRESS HERE"</code>.</p>
+</li>
+<li>
+<p>Display your public key: <code>cat ~/.ssh/id_rsa.pub</code> and copy it.</p>
+</li>
+<li>
+<p>Ensure your SSH public key is authorized by the repo:</p>
+<ul>
+<li>if you own the repo, add the (above copied) key to your
+   settings (look for access SSH keys),</li>
+<li>or, depending on the hosting: ask the owner of the repo to
+   authorize your SSH key, or add you as collaborator, or add you
+   to the organization/project.</li>
+</ul>
+</li>
+</ol>
+<h2>Step 2 - Call the necessary commands</h2>
+<p>The needed commands are, for the given repo:</p>
+<ul>
+<li><code>export GOPRIVATE=github.com/pbauermeister</code></li>
+<li><code>git config --global url."git@github.com:".insteadOf "https://github.com/"</code></li>
+</ul>
+<p>then, build as usual.</p>
+<h2>Step 3 - Pack commands into a script</h2>
+<p>To automate the step 2, include the commands in whatever build script
+you are using for your project.</p>
+<p>For instance, <code>build.sh</code>:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="ch">#!/bin/sh</span>
+<span class="nb">set</span> -ex
+
+<span class="nb">export</span> <span class="nv">GOPRIVATE</span><span class="o">=</span>github.com/pbauermeister
+git config --global url.<span class="s2">&quot;git@github.com:&quot;</span>.insteadOf <span class="s2">&quot;https://github.com/&quot;</span>
+go get github.com/pbauermeister/golang-example-private-module/v2
+go build -o main main.go
+</code></pre></div></td></tr></table></div>
+
+<p>Now the build does not complain, and you can run the result, as in
+this sample session:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code>$ ./build.sh
++ <span class="nb">export</span> <span class="nv">GOPRIVATE</span><span class="o">=</span>github.com/pbauermeister
++ git config --global url.git@github.com:.insteadOf https://github.com/
++ go get github.com/pbauermeister/golang-example-private-module/v2
++ go build -o main main.go
+
+$ ./main
+The value is <span class="m">42</span>
+</code></pre></div></td></tr></table></div>
+
+<h1>That's it!</h1>
+<p>Thanks for reading.</p>
+    </article>
+
+        <div class="tags">
+            <p>tags: <a href="/tag/golang.html">Golang</a>, <a href="/tag/shell.html">shell</a>, <a href="/tag/git.html">Git</a>, <a href="/tag/devops.html">DevOps</a></p>
+        </div>
+
+    <hr>
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                    </ul>
+<h2 id="disqus-comment-section-title">Comments !</h2>
+
+<div id="disqus_thread"></div>
+<script>
+    (function() { // DON'T EDIT BELOW THIS LINE
+      if (window.location.pathname == '/') {
+	document.getElementById("disqus-comment-section-title").remove();
+	return;
+      }
+      var d = document, s = d.createElement('script');
+      s.src = 'https://pbauermeister-blog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>. <br />        &copy;  Pascal Bauermeister
+</p>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="/theme/js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="/theme/js/clean-blog.min.js"></script>
+
+<script type="text/javascript">
+    var disqus_shortname = 'pbauermeister-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+
+</html>

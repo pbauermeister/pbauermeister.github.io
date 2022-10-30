@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+        <title>Using a Private Module in Go - Part 2, with Docker</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="/theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="/theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="/theme/css/code_blocks/monokai.css" rel="stylesheet">
+
+            <!-- CSS specified by the user -->
+            <link href="/custom.css" rel="stylesheet">
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+        <meta name="description" content="In a Dockerfile, how to use a Go module that is hosted in a private Git repo?">
+
+        <meta name="author" content="Pascal Bauermeister">
+
+        <meta name="tags" content="Golang">
+        <meta name="tags" content="shell">
+        <meta name="tags" content="Git">
+        <meta name="tags" content="DevOps">
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Programmatically speaking">
+
+	<meta property="og:type" content="article">
+            <meta property="article:author" content="/author/pascal-bauermeister.html">
+	<meta property="og:url" content="/using-a-private-module-in-go-part-2-with-docker.html">
+	<meta property="og:title" content="Using a Private Module in Go - Part 2, with Docker">
+	<meta property="article:published_time" content="2022-10-30 00:00:00+02:00">
+            <meta property="og:description" content="In a Dockerfile, how to use a Go module that is hosted in a private Git repo?">
+
+            <meta property="og:image" content="/theme/images/post-bg.jpg">
+</head>
+
+<body class="article-using-a-private-module-in-go-part-2-with-docker">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Programmatically speaking</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('/theme/images/post-bg.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>Using a Private Module in Go - Part 2, with Docker</h1>
+                        <span class="meta">Posted by
+                                <a href="/author/pascal-bauermeister.html">Pascal Bauermeister</a>
+                             on Sun 30 October 2022
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <p>This is the 2nd post of the series "Using a Private Module in Go". In
+the <a href="using-a-private-module-in-go-part-1-natively.html">part 1</a> we have seen how to do it natively.</p>
+<p>In the present post, we will learn how to do it in Docker. I advise to
+read the <a href="using-a-private-module-in-go-part-1-natively.html">part 1</a> first. The additional work with Docker is about
+allowing SSH access to the repo, from within Docker.</p>
+<h1>Concept</h1>
+<p>Like in <a href="using-a-private-module-in-go-part-1-natively.html">part 1</a>, we assume that we (the native user) have SSH
+access to the private Git repo.</p>
+<p>We will use the <code>docker build --secret</code> option to copy our private SSH
+key into the container, so that the container can access the private
+repo as well.</p>
+<h1>Solution</h1>
+<p>Docker version 20.10 or above is needed.</p>
+<h2>Step 1 - The Dockerfile</h2>
+<p>Let us create this <code>Dockerfile</code>:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="n">Build</span><span class="w"> </span><span class="n">stage</span><span class="w"></span>
+<span class="k">FROM</span><span class="w"> </span><span class="nl">golang</span><span class="p">:</span><span class="mf">1.18</span><span class="n">rc1</span><span class="o">-</span><span class="n">bullseye</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">BUILD</span><span class="w"></span>
+
+<span class="n">WORKDIR</span><span class="w"> </span><span class="o">/</span><span class="n">app</span><span class="w"></span>
+<span class="n">COPY</span><span class="w"> </span><span class="o">*</span><span class="p">.</span><span class="k">go</span><span class="w"> </span><span class="k">go</span><span class="p">.</span><span class="o">*</span><span class="w"> </span><span class="n">build</span><span class="o">-</span><span class="n">app</span><span class="p">.</span><span class="n">sh</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="w"></span>
+<span class="n">RUN</span><span class="w"> </span><span class="o">--</span><span class="n">mount</span><span class="o">=</span><span class="n">type</span><span class="o">=</span><span class="n">secret</span><span class="p">,</span><span class="n">id</span><span class="o">=</span><span class="n">ID_RSA</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="n">build</span><span class="o">-</span><span class="n">app</span><span class="p">.</span><span class="n">sh</span><span class="w"></span>
+
+<span class="err">#</span><span class="w"> </span><span class="n">Final</span><span class="w"> </span><span class="n">stage</span><span class="w"></span>
+<span class="k">FROM</span><span class="w"> </span><span class="nl">debian</span><span class="p">:</span><span class="mi">11</span><span class="o">-</span><span class="n">slim</span><span class="w"></span>
+
+<span class="n">WORKDIR</span><span class="w"> </span><span class="o">/</span><span class="n">app</span><span class="w"></span>
+<span class="n">COPY</span><span class="w"> </span><span class="o">--</span><span class="k">from</span><span class="o">=</span><span class="n">BUILD</span><span class="w"> </span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="n">main</span><span class="w"> </span><span class="p">.</span><span class="w"></span>
+<span class="n">CMD</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="n">main</span><span class="w"></span>
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>
+<p>In the build stage, in line 6, <code>--mount=type=secret,id=ID_RSA</code>
+  mandates that the file <code>/run/secrets/ID_RSA</code>, inside the container,
+  holds our secret, during the execution of <code>build-app.sh</code>.</p>
+</li>
+<li>
+<p>As its name indicates, <code>build-app.sh</code> is caring for the most part of
+  the work.</p>
+</li>
+</ul>
+<h2>Step 2 - <code>build-app.sh</code></h2>
+<p>The script <code>build-app.sh</code> runs in the build stage of the Dockerfile,
+and essentially does what we have seen in <a href="using-a-private-module-in-go-part-1-natively.html">part 1</a>, plus some
+preparation work.</p>
+<p><code>build-app.sh</code>:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="ch">#!/bin/sh</span>
+<span class="nb">set</span> -ex
+
+<span class="k">if</span> <span class="o">[</span> ! -f /run/secrets/ID_RSA <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="nb">echo</span> &gt;<span class="p">&amp;</span><span class="m">2</span> <span class="s2">&quot;Error: /run/secrets/ID_RSA is not available&quot;</span>
+    <span class="nb">exit</span> <span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="c1"># Prepare to access the repo via SSH</span>
+mkdir ~/.ssh
+cat /run/secrets/ID_RSA <span class="p">|</span> base64 -d &gt; ~/.ssh/id_rsa
+chmod og-rw ~/.ssh/id_rsa
+
+ssh-keyscan -H github.com &gt;&gt; ~/.ssh/known_hosts
+
+<span class="c1"># Get module and build</span>
+<span class="nb">export</span> <span class="nv">GOPRIVATE</span><span class="o">=</span>github.com/pbauermeister
+git config --global url.<span class="s2">&quot;git@github.com:&quot;</span>.insteadOf <span class="s2">&quot;https://github.com/&quot;</span>
+go get github.com/pbauermeister/golang-example-private-module/v2
+go build -o main main.go
+
+<span class="c1"># Cleanup</span>
+rm -rf ~/.ssh
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>
+<p>Lines 4 to 7: we check that the secret file <code>/run/secrets/ID_RSA</code>
+  (as instructed by <code>RUN --mount=type=secret,id=ID_RSA</code> in Step 1)
+  exists.</p>
+</li>
+<li>
+<p>Lines 10 to 12: we create the <code>~/.ssh/id_rsa</code> file, which is the
+  private SSH key allowing us to access the private Git repo.</p>
+<ul>
+<li>Line 11: we use <code>/run/secrets/ID_RSA</code> to create the file
+  <code>~/.ssh/id_rsa</code>. The content of <code>ID_RSA</code> is base-64 encoded, so
+  we use <code>base64 -d</code> to decode it.</li>
+</ul>
+</li>
+<li>
+<p>Line 14: we declare the Git server as a known host, so that we will
+  not be prompted to validate it at line 21.</p>
+</li>
+<li>
+<p>Lines 17 to 20: like in the <a href="using-a-private-module-in-go-part-1-natively.html">part 1</a>.</p>
+</li>
+<li>
+<p>Line 23: we remove the SSH private key, so that it does not remain
+  in the image layer.</p>
+</li>
+</ul>
+<h2>Step 3 - Building the image</h2>
+<p>Time to build the image! The following build script includes the
+handling of the secret.</p>
+<p><code>build-image.sh</code>:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="nb">set</span> -e
+<span class="nv">ID_RSA</span><span class="o">=</span><span class="k">$(</span>cat ~/.ssh/id_rsa <span class="p">|</span> base64 -w0<span class="k">)</span>
+<span class="nb">set</span> -x
+
+<span class="nv">DOCKER_BUILDKIT</span><span class="o">=</span><span class="m">1</span> docker build <span class="se">\</span>
+       --no-cache <span class="se">\</span>
+       --secret <span class="nv">id</span><span class="o">=</span>ID_RSA,src<span class="o">=</span>&lt;<span class="o">(</span><span class="nb">set</span> +x<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$ID_RSA</span><span class="o">)</span> <span class="se">\</span>
+       --tag golang-example-use-private-repo .
+</code></pre></div></td></tr></table></div>
+
+<ul>
+<li>
+<p>Line 3: our ssh private key is read, packed as base64, and put into
+  the variable <code>ID_RSA</code>.</p>
+</li>
+<li>
+<p>Line 6: <code>DOCKER_BUILDKIT=1</code> mandates to enable the BuildKit,
+  required for <code>RUN --mount=type=secret</code>.</p>
+</li>
+<li>
+<p>Line 8:</p>
+<ul>
+<li><code>--secret id=ID_RSA,src=</code> mandates to put the secret to be
+   available into the container, but not stored into the image.</li>
+<li><code>&lt;(set +x; echo $ID_RSA)</code> creates a temporary file containing
+  the value of <code>ID_RSA</code> created at line 3, and passes the tempory
+  path to <code>src=</code>.</li>
+</ul>
+</li>
+</ul>
+<p>Sample session of running the build script:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span></pre></div></td><td class="code"><div><pre><span></span><code>$ ./build-image.sh
++ <span class="nv">DOCKER_BUILDKIT</span><span class="o">=</span><span class="m">1</span>
++ docker build --no-cache --secret <span class="nv">id</span><span class="o">=</span>ID_RSA,src<span class="o">=</span>/dev/fd/63 <span class="se">\</span>
+               --tag golang-example-use-private-repo .
+++ <span class="nb">set</span> +x
+<span class="o">[</span>+<span class="o">]</span> Building <span class="m">7</span>.0s <span class="o">(</span><span class="m">13</span>/13<span class="o">)</span> <span class="nv">FINISHED</span>
+ <span class="o">=</span>&gt; <span class="o">[</span>internal<span class="o">]</span> load build definition from Dockerfile                    <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">=</span>&gt; transferring dockerfile: 38B                                     <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">[</span>internal<span class="o">]</span> load .dockerignore                                       <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">=</span>&gt; transferring context: 2B                                         <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">[</span>internal<span class="o">]</span> load metadata <span class="k">for</span> docker.io/library/debian:11-slim       <span class="m">1</span>.2s
+ <span class="o">=</span>&gt; <span class="o">[</span>internal<span class="o">]</span> load metadata <span class="k">for</span> docker.io/library/golang:1.18rc1-bull  <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">[</span>build <span class="m">1</span>/4<span class="o">]</span> FROM docker.io/library/golang:1.18rc1-bullseye          <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">[</span>internal<span class="o">]</span> load build context                                       <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">=</span>&gt; transferring context: 112B                                       <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">[</span>stage-1 <span class="m">1</span>/3<span class="o">]</span> FROM docker.io/library/debian:11-slim@sha256:e8ad0bc  <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; CACHED <span class="o">[</span>stage-1 <span class="m">2</span>/3<span class="o">]</span> WORKDIR /app                                   <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; CACHED <span class="o">[</span>build <span class="m">2</span>/4<span class="o">]</span> WORKDIR /app                                     <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">[</span>build <span class="m">3</span>/4<span class="o">]</span> COPY *.go go.* build-app.sh ./                          <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">[</span>build <span class="m">4</span>/4<span class="o">]</span> RUN --mount<span class="o">=</span><span class="nv">type</span><span class="o">=</span>secret,id<span class="o">=</span>ID_RSA ./build-app.sh        <span class="m">5</span>.6s
+ <span class="o">=</span>&gt; <span class="o">[</span>stage-1 <span class="m">3</span>/3<span class="o">]</span> COPY --from<span class="o">=</span>BUILD /app/main .                         <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; exporting to image                                                  <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">=</span>&gt; exporting layers                                                 <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">=</span>&gt; writing image sha256:ee330b6cfd0692514de2f16851a1fb10185238266e  <span class="m">0</span>.0s
+ <span class="o">=</span>&gt; <span class="o">=</span>&gt; naming to docker.io/library/golang-example-use-private-repo      <span class="m">0</span>.0s
+</code></pre></div></td></tr></table></div>
+
+<h2>Step 4 - Running the image</h2>
+<p>Sample session of running the image:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>$ docker run golang-example-use-private-repo
+The value is <span class="m">42</span>
+</code></pre></div></td></tr></table></div>
+
+<p>It works!</p>
+<h2>Optional - Get the private module natively</h2>
+<p>If you develop with an IDE, or compile natively before building the
+container, you will need to get the private module. Here is a handy
+script for this.</p>
+<p><code>go-get-private-repo-natively.sh</code>:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="ch">#!/bin/sh</span>
+<span class="nb">set</span> -ex
+
+<span class="nb">export</span> <span class="nv">GOPRIVATE</span><span class="o">=</span>github.com/pbauermeister
+go get github.com/pbauermeister/golang-example-private-module/v2
+</code></pre></div></td></tr></table></div>
+
+<h1>That's it!</h1>
+<p>Thanks for reading.</p>
+    </article>
+
+        <div class="tags">
+            <p>tags: <a href="/tag/golang.html">Golang</a>, <a href="/tag/shell.html">shell</a>, <a href="/tag/git.html">Git</a>, <a href="/tag/devops.html">DevOps</a></p>
+        </div>
+
+    <hr>
+
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                    </ul>
+<h2 id="disqus-comment-section-title">Comments !</h2>
+
+<div id="disqus_thread"></div>
+<script>
+    (function() { // DON'T EDIT BELOW THIS LINE
+      if (window.location.pathname == '/') {
+	document.getElementById("disqus-comment-section-title").remove();
+	return;
+      }
+      var d = document, s = d.createElement('script');
+      s.src = 'https://pbauermeister-blog.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>. <br />        &copy;  Pascal Bauermeister
+</p>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="/theme/js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="/theme/js/clean-blog.min.js"></script>
+
+<script type="text/javascript">
+    var disqus_shortname = 'pbauermeister-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+
+</html>
