@@ -85,3 +85,11 @@ use CSS to add line numbers to all spans that have the class 'code-line' */
   color: grey;
   text-align: right;
 }
+
+
+.highlight pre span.code-line {
+    counter-increment: linecounter;
+    padding-left: 1em;
+    text-indent: -1em;
+    display: inline-block;
+}
