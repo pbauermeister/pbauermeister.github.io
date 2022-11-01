@@ -84,6 +84,7 @@ use CSS to add line numbers to all spans that have the class 'code-line' */
   display: inline-block;
   color: grey;
   text-align: right;
+  min-width: 3em;
 }
 
 
