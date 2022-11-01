@@ -88,16 +88,6 @@ THEME = 'pelican-clean-blog'
 
 
 COLOR_SCHEME_CSS = 'monokai.css'
-
-MARKDOWN = {
-  'extension_configs': {
-    'markdown.extensions.codehilite': {'css_class': 'highlight', 'linenums': True},
-    'markdown.extensions.extra': {},
-    'markdown.extensions.meta': {},
-  },
-  'output_format': 'html5',
-}
-
 CSS_OVERRIDE = 'custom.css'
 FOOTER_INCLUDE = 'pelican-clean-blog-modified-footer.html'
 THEME_TEMPLATES_OVERRIDES = ['extra-templates']
@@ -109,3 +99,18 @@ PLUGINS = [
     #"better_codeblock_line_numbering",
     #"disqus_static"
 ]
+
+GOOGLE_ANALYTICS = 'G-S8FN37BSDH'
+
+# Code block line numbering:
+MD_EXTENSIONS = ['fenced_code',
+                 'codehilite(css_class=highlight, linenums=False)']
+PLUGINS = ['better_codeblock_line_numbering']
+_MARKDOWN = {
+  'extension_configs': {
+    'markdown.extensions.codehilite': {'css_class': 'highlight', 'linenums': True},
+    'markdown.extensions.extra': {},
+    'markdown.extensions.meta': {},
+  },
+  'output_format': 'html5',
+}

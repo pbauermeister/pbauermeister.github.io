@@ -157,8 +157,7 @@ Sample session of running the build script:
 ```bash
 $ ./build-image.sh
 + DOCKER_BUILDKIT=1
-+ docker build --no-cache --secret id=ID_RSA,src=/dev/fd/63 \
-               --tag golang-example-use-private-repo .
++ docker build --no-cache --secret id=ID_RSA,src=/dev/fd/63                --tag golang-example-use-private-repo .
 ++ set +x
 [+] Building 7.0s (13/13) FINISHED
  => [internal] load build definition from Dockerfile                    0.0s
