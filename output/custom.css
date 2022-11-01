@@ -48,6 +48,11 @@ table.highlighttable {
     min-width: auto;
 }
 
+div.tags {
+    margin-top: 40px;
+    border-top: 1px solid #eee;
+}
+
 /* -----------------------------------------------------------------------------
  * Code block line numbering:
  * https://blog.kdheepak.com/how-to-add-line-numbers-for-code-blocks-in-pelican

@@ -75,8 +75,7 @@ func main() {
 }
 ```
 
-When running your program, you expect the output to be `The value is
-42`.
+When running your program, you expect the output to be `The value is 42`.
 
 ## The issue
 
@@ -164,3 +163,6 @@ The value is 42
 # That's it!
 
 Thanks for reading.
+
+In [part 2](using-a-private-module-in-go-part-2-with-docker.html) we
+will extend the solution to Docker containers.
