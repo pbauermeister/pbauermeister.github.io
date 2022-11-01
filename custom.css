@@ -42,3 +42,8 @@ p.article-summary {
 .post-preview>a>.post-title {
     font-size: 20px;
 }
+
+table.highlighttable {
+    min-width: 720px;
+    min-width: auto;
+}
