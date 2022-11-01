@@ -86,13 +86,17 @@ use CSS to add line numbers to all spans that have the class 'code-line' */
 .highlight pre span.code-line:before {
   content: counter(linecounter);
   padding-right: 0.5em;
-  margin-right: 1.2em;
+  margin-right: 1.5em;
   display: inline-block;
   color: #666;
   text-align: right;
-  min-width: 2em;
+  min-width: 2.5em;
   /*border-right: 1px dotted #444;*/
   font-size: 95%;
+}
+
+div.highlight > pre {
+    padding-left: 5px;
 }
 
 /* -------------------------------------------------------------------------- */
