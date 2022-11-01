@@ -122,12 +122,12 @@ extend the solution to Docker containers.</p>
 <h2>Context</h2>
 <p>Mostly, Go modules are hosted on public repositories. You import a
 module (e.g. <code>yaml</code>) by having in your Go source file:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="s">&quot;gopkg.in/yaml.v3&quot;</span><span class="w"></span>
-</code></pre></div></td></tr></table></div>
+<div class="highlight"><pre><span class="code-line"><span></span><code><span class="kn">import</span><span class="w"> </span><span class="s">&quot;gopkg.in/yaml.v3&quot;</span><span class="w"></span></span>
+<span class="code-line"></code></pre></div>
 
 <p>and run:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>go get gopkg.in/yaml.v3
-</code></pre></div></td></tr></table></div>
+<div class="highlight"><pre><span class="code-line"><span></span><code>go get gopkg.in/yaml.v3</span>
+<span class="code-line"></code></pre></div>
 
 <p>When, for some reasons, you are to use a module that is hosted on a
 private repo, things become a bit more complex. Read on.</p>
@@ -135,66 +135,45 @@ private repo, things become a bit more complex. Read on.</p>
 <p>In this post, we are supposing we want to use a private module hosted
 at <code>github.com/pbauermeister/golang-example-private-module</code> and
 described by its <code>go.mod</code> file:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nx">module</span><span class="w"> </span><span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="nx">pbauermeister</span><span class="o">/</span><span class="nx">golang</span><span class="o">-</span><span class="nx">example</span><span class="o">-</span><span class="nx">private</span><span class="o">-</span><span class="nx">module</span><span class="o">/</span><span class="nx">v2</span><span class="w"></span>
-
-<span class="k">go</span><span class="w"> </span><span class="mf">1.18</span><span class="w"></span>
-</code></pre></div></td></tr></table></div>
+<div class="highlight"><pre><span class="code-line"><span></span><code><span class="nx">module</span><span class="w"> </span><span class="nx">github</span><span class="p">.</span><span class="nx">com</span><span class="o">/</span><span class="nx">pbauermeister</span><span class="o">/</span><span class="nx">golang</span><span class="o">-</span><span class="nx">example</span><span class="o">-</span><span class="nx">private</span><span class="o">-</span><span class="nx">module</span><span class="o">/</span><span class="nx">v2</span><span class="w"></span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="k">go</span><span class="w"> </span><span class="mf">1.18</span><span class="w"></span></span>
+<span class="code-line"></code></pre></div>
 
 <p>and containing this single source file, <code>example.go</code>:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span>
-<span class="normal">5</span>
-<span class="normal">6</span>
-<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">example_package</span><span class="w"></span>
-
-<span class="kn">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span>
-
-<span class="kd">func</span><span class="w"> </span><span class="nx">ExampleFunc</span><span class="p">(</span><span class="nx">value</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;The value is&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="p">)</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</code></pre></div></td></tr></table></div>
+<div class="highlight"><pre><span class="code-line"><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">example_package</span><span class="w"></span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kn">import</span><span class="w"> </span><span class="s">&quot;fmt&quot;</span><span class="w"></span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kd">func</span><span class="w"> </span><span class="nx">ExampleFunc</span><span class="p">(</span><span class="nx">value</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></span>
+<span class="code-line"><span class="w">        </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Println</span><span class="p">(</span><span class="s">&quot;The value is&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="p">)</span><span class="w"></span></span>
+<span class="code-line"><span class="p">}</span><span class="w"></span></span>
+<span class="code-line"></code></pre></div>
 
 <h2>Your code</h2>
 <p>Let us assume your <code>main.go</code> file looks like this:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span>
-<span class="normal">5</span>
-<span class="normal">6</span>
-<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nx">lib</span><span class="w"> </span><span class="s">&quot;github.com/pbauermeister/golang-example-private-module/v2&quot;</span><span class="w"></span>
-
-<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nx">lib</span><span class="p">.</span><span class="nx">ExampleFunc</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</code></pre></div></td></tr></table></div>
+<div class="highlight"><pre><span class="code-line"><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span><span class="w"></span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kn">import</span><span class="w"> </span><span class="nx">lib</span><span class="w"> </span><span class="s">&quot;github.com/pbauermeister/golang-example-private-module/v2&quot;</span><span class="w"></span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span></span>
+<span class="code-line"><span class="w">        </span><span class="nx">lib</span><span class="p">.</span><span class="nx">ExampleFunc</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"></span></span>
+<span class="code-line"><span class="p">}</span><span class="w"></span></span>
+<span class="code-line"></code></pre></div>
 
 <p>When running your program, you expect the output to be <code>The value is
 42</code>.</p>
 <h2>The issue</h2>
 <p>The command <code>go get ...</code> will yield an error, like in this session:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span>
-<span class="normal">5</span>
-<span class="normal">6</span>
-<span class="normal">7</span>
-<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code>$ go get github.com/pbauermeister/golang-example-private-module/v2
-go: module github.com/pbauermeister/golang-example-private-module:
-git ls-remote -q origin <span class="k">in</span> /home/pascal/go/pkg/mod/cache/vcs/e542c...: <span class="nb">exit</span> status <span class="m">128</span>:
-    ERROR: Repository not found.
-    fatal: Could not <span class="nb">read</span> from remote repository.
-
-    Please make sure you have the correct access rights
-    and the repository exists.
-</code></pre></div></td></tr></table></div>
+<div class="highlight"><pre><span class="code-line"><span></span><code>$ go get github.com/pbauermeister/golang-example-private-module/v2</span>
+<span class="code-line">go: module github.com/pbauermeister/golang-example-private-module:</span>
+<span class="code-line">git ls-remote -q origin <span class="k">in</span> /home/pascal/go/pkg/mod/cache/vcs/e542c...: <span class="nb">exit</span> status <span class="m">128</span>:</span>
+<span class="code-line">    ERROR: Repository not found.</span>
+<span class="code-line">    fatal: Could not <span class="nb">read</span> from remote repository.</span>
+<span class="code-line"></span>
+<span class="code-line">    Please make sure you have the correct access rights</span>
+<span class="code-line">    and the repository exists.</span>
+<span class="code-line"></code></pre></div>
 
 <p>As we are sure that the repository exists, it must be an access rights
 issue, which is not a surprise because the repo is private.</p>
@@ -237,39 +216,26 @@ issue, which is not a surprise because the repo is private.</p>
 <p>To automate the step 2, include the commands in whatever build script
 you are using for your project.</p>
 <p>For instance, <code>build.sh</code>:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span>
-<span class="normal">5</span>
-<span class="normal">6</span>
-<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="ch">#!/bin/sh</span>
-<span class="nb">set</span> -ex
-
-<span class="nb">export</span> <span class="nv">GOPRIVATE</span><span class="o">=</span>github.com/pbauermeister
-git config --global url.<span class="s2">&quot;git@github.com:&quot;</span>.insteadOf <span class="s2">&quot;https://github.com/&quot;</span>
-go get github.com/pbauermeister/golang-example-private-module/v2
-go build -o main main.go
-</code></pre></div></td></tr></table></div>
+<div class="highlight"><pre><span class="code-line"><span></span><code><span class="ch">#!/bin/sh</span></span>
+<span class="code-line"><span class="nb">set</span> -ex</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="nb">export</span> <span class="nv">GOPRIVATE</span><span class="o">=</span>github.com/pbauermeister</span>
+<span class="code-line">git config --global url.<span class="s2">&quot;git@github.com:&quot;</span>.insteadOf <span class="s2">&quot;https://github.com/&quot;</span></span>
+<span class="code-line">go get github.com/pbauermeister/golang-example-private-module/v2</span>
+<span class="code-line">go build -o main main.go</span>
+<span class="code-line"></code></pre></div>
 
 <p>Now the build does not complain, and you can run the result, as in
 this sample session:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span>
-<span class="normal">5</span>
-<span class="normal">6</span>
-<span class="normal">7</span>
-<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code>$ ./build.sh
-+ <span class="nb">export</span> <span class="nv">GOPRIVATE</span><span class="o">=</span>github.com/pbauermeister
-+ git config --global url.git@github.com:.insteadOf https://github.com/
-+ go get github.com/pbauermeister/golang-example-private-module/v2
-+ go build -o main main.go
-
-$ ./main
-The value is <span class="m">42</span>
-</code></pre></div></td></tr></table></div>
+<div class="highlight"><pre><span class="code-line"><span></span><code>$ ./build.sh</span>
+<span class="code-line">+ <span class="nb">export</span> <span class="nv">GOPRIVATE</span><span class="o">=</span>github.com/pbauermeister</span>
+<span class="code-line">+ git config --global url.git@github.com:.insteadOf https://github.com/</span>
+<span class="code-line">+ go get github.com/pbauermeister/golang-example-private-module/v2</span>
+<span class="code-line">+ go build -o main main.go</span>
+<span class="code-line"></span>
+<span class="code-line">$ ./main</span>
+<span class="code-line">The value is <span class="m">42</span></span>
+<span class="code-line"></code></pre></div>
 
 <h1>That's it!</h1>
 <p>Thanks for reading.</p>
