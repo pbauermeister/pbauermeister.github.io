@@ -100,7 +100,7 @@ PLUGINS = [
     #"disqus_static"
 ]
 
-GOOGLE_ANALYTICS = 'G-S8FN37BSDH'
+#GOOGLE_ANALYTICS = 'G-S8FN37BSDH'
 
 # Code block line numbering:
 MD_EXTENSIONS = ['fenced_code',
